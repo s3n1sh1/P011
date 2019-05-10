@@ -439,6 +439,19 @@
     } 
 
 
+
+    function fnCrtObjGrd(&$Obj, $Show, $FFTipe, $Mode, $Panel, $Code, $Name, $Required, $action, 
+                            $controller, $methodGrid) {
+        fnCrtObj($Obj, $Show, $FFTipe, $Mode, "grd", $Panel, $Code, $Name, $Name, $Required);
+        fnUpdObj($Obj, $Code, array( "Controller" => $controller,
+                                     "Method" => $methodGrid,
+                                     "Action" => $action,
+                                     "OpenForm" => true,
+                                     "SaveForm" => true,
+                                     "GrdAuth" => "",
+                                     "GrdKey" => "") );
+    }
+
 /*=================================================================================================================================*/
 /*======END OBJECT=================================================================================================================*/
 /*=================================================================================================================================*/
@@ -507,6 +520,13 @@
 /*======BEGIN CRUD======================================================================================================*/
 /*======================================================================================================================*/
 
+
+    function fnFillGrid($Data) {
+        $Hasil = $Data;
+        $Hasil = json_encode($Hasil);
+        $Hasil = json_decode($Hasil, true);
+        return $Hasil['original'];
+    }
 
 
     function fnGenDelimiter($length = 10) {
@@ -637,6 +657,30 @@
         return array("success"=>true, "message"=>"");            
     }
 
+    function fnTBLNOR($Table, $UserName) {
+        $NoIY = 1;
+        $TBLNOUR = DB::table("TBLNOR")
+                        ->Select(['TNTABL' , 'TNNOUR'])
+                        ->where('TNTABL','=',$Table)
+                        // ->where('TNTABL','=','TBLMNU')
+                        ->get();
+        if (count($TBLNOUR)) {
+            // var_dump($TBLNOUR[0]);
+            $NoIY = ($TBLNOUR[0]->TNNOUR+1);
+            $TBLNOR = array("TNTABL"=>$Table,"TNNOUR"=>$NoIY);
+            $FinalTBLNOR = fnGetSintaxCRUD ($UserName, $TBLNOR, '1', "TN", ['TNTABL','TNNOUR'], "" );
+            DB::table('TBLNOR')
+                ->where('TNTABL','=',$Table)
+                ->update($FinalTBLNOR);   
+        } else {
+            $TBLNOR = array("TNTABL"=>$Table,"TNNOUR"=>"1");
+            $FinalTBLNOR = fnGetSintaxCRUD ($UserName, $TBLNOR, '1', "TN", ['TNTABL','TNNOUR'], "" );
+            DB::table('TBLNOR')
+                ->insert($FinalTBLNOR);   
+        }
+        return $NoIY;    
+    }
+
     function fnSetExecuteQuery ($UserName, $SQLSTM, $DELIMITER = "") {
     
         try{
@@ -669,6 +713,9 @@
                 // DB::table('TBLDSC')
                 //     ->where('TDDSCD','=',$FinalField['TDDSCD'])                    
                 //     ->update(['TDREMK'=>'wwww']);          
+
+            // $RoutePath = $request->Controller."@".$request->Method;
+// $Hasil = App::call('\App\Http\Controllers\Forms\\'.$RoutePath);
 
                 foreach($SQLSTM as $k => $Data) {
                     
@@ -737,6 +784,40 @@
             $eCode = fnSaveSqlError($e, $UserName);
             // $message = $a->sql;
 
+            $BerHasil = false;
+        }
+
+        if ($BerHasil) {
+            $Hasil = array("success"=> true, "message"=> "*** Success ***", "eCode"=>"");
+            // $Hasil = array("success"=> true, "message"=> "*** Success ***");
+        } else {
+            $Hasil = array("success"=> false, "message"=> $message, "eCode"=>$eCode);
+            // $Hasil = array("success"=> false, "message"=> $message);
+        }
+
+        return $Hasil;
+    }
+
+
+
+    function fnSetExecuteQuery2 ($UserName, $cm) {
+    
+        try{
+
+            DB::enableQueryLog();
+            DB::transaction(function () use($UserName, $cm) {
+
+                $Hasil = App::call('\App\Http\Controllers\Forms\\'.$cm);
+
+            });
+            $QueryLog = DB::getQueryLog();
+            fnSaveSqlSintax($QueryLog, $UserName);
+            $BerHasil = true;
+        } catch (\Exception $e){ 
+            $message = $e->errorInfo[2];
+            // $eCode = $e;
+            $eCode = fnSaveSqlError($e, $UserName);
+            // $message = $a->sql;
             $BerHasil = false;
         }
 

@@ -62,7 +62,7 @@ class TBLDSCTBLSYSTableSeeder extends Seeder
         $TBLSYS = new TBLSYS();
         $TBLSYS->TSDSCDIY = ($iDSC-1);
         $TBLSYS->TSSYCDIY = $iSYS++;
-        $TBLSYS->TSSYCD = 'Y';
+        $TBLSYS->TSSYCD = '1';
         $TBLSYS->TSSYNM = 'YES';
         $TBLSYS->TSSYV1 = '0'; $TBLSYS->TSSYV2 = '0'; $TBLSYS->TSSYV3 = '0';
         $TBLSYS->TSSYT1 = ''; $TBLSYS->TSSYT2 = ''; $TBLSYS->TSSYT3 = '';
@@ -75,7 +75,7 @@ class TBLDSCTBLSYSTableSeeder extends Seeder
         $TBLSYS = new TBLSYS();
         $TBLSYS->TSDSCDIY = ($iDSC-1);
         $TBLSYS->TSSYCDIY = $iSYS++;
-        $TBLSYS->TSSYCD = 'N';
+        $TBLSYS->TSSYCD = '0';
         $TBLSYS->TSSYNM = 'NO';
         $TBLSYS->TSSYV1 = '0'; $TBLSYS->TSSYV2 = '0'; $TBLSYS->TSSYV3 = '0';
         $TBLSYS->TSSYT1 = ''; $TBLSYS->TSSYT2 = ''; $TBLSYS->TSSYT3 = '';

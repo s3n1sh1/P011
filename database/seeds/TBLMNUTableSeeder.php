@@ -171,8 +171,82 @@ class TBLMNUTableSeeder extends Seeder
         $TBLMNU->TMGRID = '';
         $TBLMNU->TMREMK = '';
         foreach ($defaultFieldTBLMNU as $K => $D) { $TBLMNU[$K] = $D; }
+        $TBLMNU->save();     
+
+        $TBLMNU = new TBLMNU();
+        $TBLMNU->TMMENUIY = $i++;
+        $TBLMNU->TMNOMR = '0215';
+        $TBLMNU->TMGRUP = '';
+        $TBLMNU->TMMENU = 'ITEM';
+        $TBLMNU->TMDESC = '';
+        $TBLMNU->TMSCUT = 'MAS015';
+        $TBLMNU->TMACES = 'VAEDXL';
+        $TBLMNU->TMBCDT = '99';
+        $TBLMNU->TMFWDT = '99';
+        $TBLMNU->TMURLW = 'MITMAS';
+        $TBLMNU->TMSYFG = 'W';
+        $TBLMNU->TMRLDT = Date("Ymd");
+        $TBLMNU->TMGRID = '';
+        $TBLMNU->TMREMK = '';
+        foreach ($defaultFieldTBLMNU as $K => $D) { $TBLMNU[$K] = $D; }
+        $TBLMNU->save();     
+
+        $TBLMNU = new TBLMNU();
+        $TBLMNU->TMMENUIY = $i++;
+        $TBLMNU->TMNOMR = '0220';
+        $TBLMNU->TMGRUP = '';
+        $TBLMNU->TMMENU = 'BISNIS PARTNER';
+        $TBLMNU->TMDESC = '';
+        $TBLMNU->TMSCUT = 'MAS020';
+        $TBLMNU->TMACES = 'VAEDXL';
+        $TBLMNU->TMBCDT = '99';
+        $TBLMNU->TMFWDT = '99';
+        $TBLMNU->TMURLW = 'MBPMAS';
+        $TBLMNU->TMSYFG = 'W';
+        $TBLMNU->TMRLDT = Date("Ymd");
+        $TBLMNU->TMGRID = '';
+        $TBLMNU->TMREMK = '';
+        foreach ($defaultFieldTBLMNU as $K => $D) { $TBLMNU[$K] = $D; }
         $TBLMNU->save();  
 
+        $TBLMNU = new TBLMNU();
+        $TBLMNU->TMMENUIY = $i++;
+        $TBLMNU->TMNOMR = '11';
+        $TBLMNU->TMGRUP = '';
+        $TBLMNU->TMMENU = 'TRANSACTION';
+        $TBLMNU->TMDESC = '';
+        $TBLMNU->TMSCUT = '';
+        $TBLMNU->TMACES = '';
+        $TBLMNU->TMBCDT = '99';
+        $TBLMNU->TMFWDT = '99';
+        $TBLMNU->TMURLW = '';
+        $TBLMNU->TMSYFG = 'W';
+        $TBLMNU->TMRLDT = Date("Ymd");
+        $TBLMNU->TMGRID = '';
+        $TBLMNU->TMREMK = '';
+        foreach ($defaultFieldTBLMNU as $K => $D) { $TBLMNU[$K] = $D; }
+        $TBLMNU->save();
+
+        $TBLMNU = new TBLMNU();
+        $TBLMNU->TMMENUIY = $i++;
+        $TBLMNU->TMNOMR = '1105';
+        $TBLMNU->TMGRUP = '';
+        $TBLMNU->TMMENU = 'SALES';
+        $TBLMNU->TMDESC = '';
+        $TBLMNU->TMSCUT = 'SAL010';
+        $TBLMNU->TMACES = 'VAEDXL';
+        $TBLMNU->TMBCDT = '99';
+        $TBLMNU->TMFWDT = '99';
+        $TBLMNU->TMURLW = 'SHHEAD';
+        $TBLMNU->TMSYFG = 'W';
+        $TBLMNU->TMRLDT = Date("Ymd");
+        $TBLMNU->TMGRID = '';
+        $TBLMNU->TMREMK = '';
+        foreach ($defaultFieldTBLMNU as $K => $D) { $TBLMNU[$K] = $D; }
+        $TBLMNU->save();  
+
+
+// ================================================================================================================
         $RunNo = new TBLNOR();
         $RunNo->TNTABL = 'TBLMNU';
         $RunNo->TNNOUR = $i;
@@ -187,6 +261,7 @@ class TBLMNUTableSeeder extends Seeder
         $RunNo->TNCSDT = Date("Y-m-d H:i:s");
         $RunNo->TNSRCE = 'FirstSetup';        
         $RunNo->save();
+
 
     }
 }

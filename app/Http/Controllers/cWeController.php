@@ -60,6 +60,24 @@ class cWeController extends Controller
 
     }
 
+    public function doExecuteQuery2($UserName, $cm) {
+
+        $Hasil = fnSetExecuteQuery2($UserName, $cm); 
+        // return $Hasil;
+
+        if(!$Hasil['success']) {
+          $Data = ["success"=>false,
+                   "message"=>$this->getErrorMessage($Hasil['eCode']),
+                   "code"=>$Hasil['eCode']['error_code'], ];
+        } else {
+          $Data = ["success"=>true,
+                   "message"=>$Hasil['message'],
+                   "code"=>"", ];
+        }
+        return $Data;
+
+    }
+
     public function getErrorMessage($err) {
         $msg = "";
         switch ($err['error_code']) {

@@ -60,20 +60,23 @@ class cTBLUSR extends cWeController {
     public function FormObject(Request $request) {
 
         fnCrtObjNum($this->FormObj, 0, "FF", "3", "Panel4", "TUUSERIY", "ID", "", false, 0);     
-        fnCrtObjTxt($this->FormObj, 1, "FF", "0", "Panel1", "TUUSER", "Login Name", "", true, 0, 50);     
+        fnCrtObjTxt($this->FormObj, 1, "FF", "2", "Panel1", "TUUSER", "Login Name", "", true, 0, 50);     
+            // fnUpdObj($this->FormObj, "TUUSER", array("Helper"=>'Dipakai saat login'));
         fnCrtObjTxt($this->FormObj, 1, "FF", "0", "Panel1", "TUNAME", "Full Name", "", true);        
         fnCrtObjTxt($this->FormObj, 1, "FF", "0", "Panel1", "TUPSWD", "Password", "", true);    
-        fnCrtObjRad($this->FormObj, 1, "FF", "0", "Panel1", "TUEXPP", "Expire Password", "", "Y", "Radio", "YN");      
-        fnCrtObjDtp($this->FormObj, 1, "FF", "0", "Panel1", "TUEXPD", "Expire Password Date", "", true);         
-        fnCrtObjNum($this->FormObj, 1, "FF", "0", "Panel1", "TUEXPV", "Expire Password Value", "", false, 0, "","Day", 1, 1, 9999);
+        fnCrtObjRad($this->FormObj, 1, "FF", "0", "Panel1", "TUDPFG", "Status User", "", "1", "Radio", "DSPLY");      
+        fnCrtObjRad($this->FormObj, 1, "FF", "0", "Panel1", "TUEXPP", "Expire Password", "", "1", "Radio", "YN");      
+        fnCrtObjDtp($this->FormObj, 1, "FF", "0", "Panel1A", "TUEXPD", "Expire Password Date", "", true);         
+        fnCrtObjNum($this->FormObj, 1, "FF", "0", "Panel1B", "TUEXPV", "Expire Password Value", "", false, 0, "","Day", 1, 1, 9999);
         
-        fnCrtObjRad($this->FormObj, 1, "FF", "0", "Panel2", "TUDPFG", "Status User", "", "1", "Radio", "DSPLY");      
         fnCrtObjTxt($this->FormObj, 1, "FF", "0", "Panel2", "TUEMID", "Employee ID", "", true);        
         fnCrtObjTxt($this->FormObj, 1, "FF", "0", "Panel2", "TUDEPT", "Department", "", false);    
         fnCrtObjTxt($this->FormObj, 1, "FF", "0", "Panel2", "TUMAIL", "Email", "", false);    
         fnCrtObjRmk($this->FormObj, 1, "FF", "0", "Panel2", "TUWELC", "Welcome Text", "", false, 100);        
         fnCrtObjRmk($this->FormObj, 1, "FF", "0", "Panel2", "TUUSRM", "User Remark", "User Remark", false, 200);
         fnCrtObjRmk($this->FormObj, 1, "FF", "0", "Panel2", "TUREMK", "Remark", "", false, 300);
+        fnCrtObjGrd($this->FormObj, 1, "XX", "0", "Panel5", "TBLUAM", "Detail Access", true
+                            , "AEDL", "TBLUSR", "LoadTBLUAM");
         fnCrtObjDefault($this->FormObj,"TU");    
         return response()->jSon($this->FormObj);   
     }
@@ -83,7 +86,6 @@ class cTBLUSR extends cWeController {
         $this->FormObject($request);
         $FillFormObject = $this->getFormObject($this->FormObj);
         // dd($FillFormObject);
-
         $TBLUSR = TBLUSR::noLock()
                 ->select( $FillFormObject )
                 ->where([
@@ -91,9 +93,8 @@ class cTBLUSR extends cWeController {
                     // ['TUUSERIY', '=', '1'],
                   ])->get();
         // dd($TBLUSR);
-
+        $TBLUSR[0]['TBLUAM'] = fnFillGrid($this->LoadTBLUAM($request));
         $Hasil = $this->setFillForm(true, $TBLUSR, "");
-        // dd($Hasil);
         return response()->jSon($Hasil);        
 
     }   
@@ -160,6 +161,50 @@ class cTBLUSR extends cWeController {
         // $Hasil->message = ""; 
         // $Hasil = array("success"=> $BerHasil, "message"=> " Sukses... ".$message.$b);
         return response()->jSon($Hasil);
+
+    }
+
+
+
+
+    public function LoadTBLUAM(Request $request) {
+
+
+        fnCrtColGrid($this->GridObj, "hdn", 1, 1, '', 'TANOMRIY', 'User Access IY', 100);
+        fnCrtColGrid($this->GridObj, "hdn", 1, 1, '', 'TMNOMR', 'Nomor', 100);
+        fnCrtColGrid($this->GridObj, "txt", 1, 1, '', 'TMMENU', 'Menu', 100);
+        fnCrtColGrid($this->GridObj, "txt", 1, 0, '', 'TMSCUT', 'Short Cut', 100);
+        fnCrtColGrid($this->GridObj, "txt", 1, 1, '', 'TMACES', 'TipeAccess', 100);
+        fnCrtColGrid($this->GridObj, "txt", 1, 1, '', 'TAACES', 'Access', 100);
+        fnCrtColGrid($this->GridObj, "act", 1, 0, '', 'ACTION', 'Action', 50);
+        // fnCrtColGridDefault($this->GridObj, "TU");
+
+        $this->GridFilter = [];
+        $this->GridSort = [];
+        $this->GridSort[] = array('name'=>'TMNOMR','direction'=>'asc');
+        $this->GridColumns = [];
+
+        $TBLUSR = TBLUSR::noLock()
+                ->leftJoin('TBLUAM','TAUSERIY','TUUSERIY')
+                ->leftJoin('TBLMNU','TMMENUIY','TAMENUIY')
+                ->where([
+                    ['TUDLFG', '=', '0'],
+                    ['TUUSERIY', '=', $request->TUUSERIY],
+                  ]);
+
+        $TBLUSR = fnQuerySearchAndPaginate($request, $TBLUSR, 
+                                           $this->GridObj, 
+                                           $this->GridSort, 
+                                           $this->GridFilter, 
+                                           $this->GridColumns);
+
+        $Hasil = array( "Data"=> $TBLUSR,
+                        "Column"=> $this->GridColumns,
+                        "Sort"=> $this->GridSort,
+                        "Filter"=> $this->GridFilter,
+                        "Key"=> 'TANOMRIY');
+        // dd($Hasil);
+        return response()->jSon($Hasil);     
 
     }
 
