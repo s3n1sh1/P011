@@ -125,7 +125,16 @@ class cTBLSYS extends cWeController {
     }   
 
 
-    public function SaveData(Request $request) {
+    public function SaveData (Request $request) {
+
+        $Hasil = $this->doExecuteQuery( $request->AppUserName, "cTBLSYS@StpTBLSYS");  
+        // $Hasil->message = ""; 
+        // $Hasil = array("success"=> $BerHasil, "message"=> " Sukses... ".$message.$b);
+        return response()->jSon($Hasil);
+
+    }
+
+    public function StpTBLSYS(Request $request) {
 
 
         $fTBLSYS = json_encode($request->frmTBLSYS);
@@ -145,52 +154,41 @@ class cTBLSYS extends cWeController {
             return response()->jSon($HasilCheckBFCS);
         }
 
-        $SqlStm = [];
+        $UserName = $request->AppUserName;
+
         switch ($request->Mode) {
             case "1":
-                array_push($SqlStm, array(
-                                        "UnikNo"=>$UnikNo,
-                                        "Mode"=>"I",
-                                        "Data"=>$fTBLSYS,
-                                        "Table"=>"TBLSYS",
-                                        "Field"=>['TSSYCDIY','TSDSCDIY','TSSYCD','TSSYNM','TSDPFG','TSREMK',
-                                                  'TSSYT1','TSLST1','TSSYT2','TSLST2','TSSYT3','TSLST3',
-                                                  'TSSYV1','TSLSV1','TSSYV2','TSLSV2','TSSYV3','TSLSV3'],
-                                        "Where"=>[],
-                                        "Iy"=>"TSSYCDIY",
-                                    ));
+                $fTBLSYS['TSSYCDIY'] = fnTBLNOR('TBLSYS', $UserName);
+                $FinalField = fnGetSintaxCRUD ($UserName, $fTBLSYS, 
+                    '1', "TS", 
+                    ['TSSYCDIY','TSDSCDIY','TSSYCD','TSSYNM','TSDPFG','TSREMK',
+                     'TSSYT1','TSLST1','TSSYT2','TSLST2','TSSYT3','TSLST3',
+                     'TSSYV1','TSLSV1','TSSYV2','TSLSV2','TSSYV3','TSLSV3'], 
+                    $UnikNo );
+                DB::table('TBLSYS')->insert($FinalField);
+
                 break;
             case "2":
-                array_push($SqlStm, array(
-                                        "UnikNo"=>$UnikNo,
-                                        "Mode"=>"U",
-                                        "Data"=>$fTBLSYS,
-                                        "Table"=>"TBLSYS",
-                                        "Field"=>['TSDSCDIY','TSSYCD','TSSYNM','TSDPFG','TSREMK',
-                                                  'TSSYT1','TSLST1','TSSYT2','TSLST2','TSSYT3','TSLST3',
-                                                  'TSSYV1','TSLSV1','TSSYV2','TSLSV2','TSSYV3','TSLSV3'],
-                                        "Where"=> ['TSSYCDIY','=',$fTBLSYS['TSSYCDIY']]
-                                    ));
+                $FinalField = fnGetSintaxCRUD ($UserName, $fTBLSYS, 
+                    '2', "TS", 
+                    ['TSDSCDIY','TSSYCD','TSSYNM','TSDPFG','TSREMK',
+                     'TSSYT1','TSLST1','TSSYT2','TSLST2','TSSYT3','TSLST3',
+                     'TSSYV1','TSLSV1','TSSYV2','TSLSV2','TSSYV3','TSLSV3'], 
+                    $UnikNo );
+                DB::table('TBLSYS')
+                    ->where('TSSYCDIY','=',$fTBLSYS['TSSYCDIY'])
+                    ->update($FinalField);
+
                 break;
             case "3":
-                array_push($SqlStm, array(
-                                        "UnikNo"=>$UnikNo,
-                                        "Mode"=>"D",
-                                        "Data"=>$fTBLSYS,
-                                        "Table"=>"TBLSYS",
-                                        "Field"=>['TSSYCDIY'],
-                                        "Where"=> ['TSSYCDIY','=',$fTBLSYS['TSSYCDIY']]
-                                    ));
+                DB::table('TBLSYS')
+                    ->where('TSSYCDIY','=',$fTBLSYS['TSSYCDIY'])      
+                    ->delete();
                 break;
         }
 
 
-        // $Hasil = fnSetExecuteQuery($SqlStm,$Delimiter);    
-        $Hasil = $this->doExecuteQuery( $request->AppUserName, $SqlStm, $Delimiter);  
-        // $Hasil->message = $this-getErrorMessage($Hasil->eCode);  
-        // $Hasil = array("success"=> $BerHasil, "message"=> " Sukses... ".$message.$b);
-        return response()->jSon($Hasil);
-
     }
+
 
 }

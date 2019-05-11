@@ -75,7 +75,7 @@ class cTBLUSR extends cWeController {
         fnCrtObjRmk($this->FormObj, 1, "FF", "0", "Panel2", "TUWELC", "Welcome Text", "", false, 100);        
         fnCrtObjRmk($this->FormObj, 1, "FF", "0", "Panel2", "TUUSRM", "User Remark", "User Remark", false, 200);
         fnCrtObjRmk($this->FormObj, 1, "FF", "0", "Panel2", "TUREMK", "Remark", "", false, 300);
-        fnCrtObjGrd($this->FormObj, 1, "XX", "0", "Panel5", "TBLUAM", "Detail Access", true
+        fnCrtObjGrd($this->FormObj, 1, "XX", "0", "Panel5", "TBLUAM", "Detail Access", false
                             , "AEDL", "TBLUSR", "LoadTBLUAM");
         fnCrtObjDefault($this->FormObj,"TU");    
         return response()->jSon($this->FormObj);   
@@ -100,7 +100,16 @@ class cTBLUSR extends cWeController {
     }   
 
 
-    public function SaveData(Request $request) {
+    public function SaveData (Request $request) {
+
+        $Hasil = $this->doExecuteQuery( $request->AppUserName, "cTBLUSR@StpTBLUSR");  
+        // $Hasil->message = ""; 
+        // $Hasil = array("success"=> $BerHasil, "message"=> " Sukses... ".$message.$b);
+        return response()->jSon($Hasil);
+
+    }
+
+    public function StpTBLUSR(Request $request) {
 
 
         $fTBLUSR = json_encode($request->frmTBLUSR);
@@ -120,51 +129,39 @@ class cTBLUSR extends cWeController {
             return response()->jSon($HasilCheckBFCS);
         }
 
-        $SqlStm = [];
+        $UserName = $request->AppUserName;
+
         switch ($request->Mode) {
             case "1":
-                array_push($SqlStm, array(
-                                        "UnikNo"=>$UnikNo,
-                                        "Mode"=>"I",
-                                        "Data"=>$fTBLUSR,
-                                        "Table"=>"TBLUSR",
-                                        "Field"=>['TUUSERIY','TUUSER','TUNAME','TUPSWD','TUEMID','TUDEPT','TUMAIL','TUWELC',
-                                                  'TUEXPP','TUEXPD','TUEXPV','TUDPFG','TUUSRM','TUREMK'],
-                                        "Where"=>[],
-                                        "Iy"=>"TUUSERIY"
-                                    ));
+                $fTBLUSR['TUUSERIY'] = fnTBLNOR('TBLUSR', $UserName);
+                $FinalField = fnGetSintaxCRUD ($UserName, $fTBLUSR, 
+                    '1', "TU", 
+                    ['TUUSERIY','TUUSER','TUNAME','TUPSWD','TUEMID','TUDEPT','TUMAIL','TUWELC',
+                     'TUEXPP','TUEXPD','TUEXPV','TUDPFG','TUUSRM','TUREMK'], 
+                    $UnikNo );
+                DB::table('TBLUSR')->insert($FinalField);
+
                 break;
             case "2":
-                array_push($SqlStm, array(
-                                        "UnikNo"=>$UnikNo,
-                                        "Mode"=>"U",
-                                        "Data"=>$fTBLUSR,
-                                        "Table"=>"TBLUSR",
-                                        "Field"=>['TUUSERIY','TUUSER','TUNAME','TUPSWD','TUEMID','TUDEPT','TUMAIL','TUWELC',
-                                                  'TUEXPP','TUEXPD','TUEXPV','TUDPFG','TUUSRM','TUREMK'],
-                                        "Where"=>['TUUSERIY','=',$fTBLUSR['TUUSERIY']],
-                                    ));
+                $FinalField = fnGetSintaxCRUD ($UserName, $fTBLUSR, 
+                    '2', "TU", 
+                    ['TUUSERIY','TUUSER','TUNAME','TUPSWD','TUEMID','TUDEPT','TUMAIL','TUWELC',
+                     'TUEXPP','TUEXPD','TUEXPV','TUDPFG','TUUSRM','TUREMK'], 
+                    $UnikNo );
+                DB::table('TBLUSR')
+                    ->where('TUUSERIY','=',$fTBLUSR['TUUSERIY'])
+                    ->update($FinalField);
+
                 break;
             case "3":
-                array_push($SqlStm, array(
-                                        "UnikNo"=>$UnikNo,
-                                        "Mode"=>"D",
-                                        "Data"=>$fTBLUSR,
-                                        "Table"=>"TBLUSR",
-                                        "Field"=>['TUUSERIY'],
-                                        "Where"=>['TUUSERIY','=',$fTBLUSR['TUUSERIY']],
-                                    ));
+                DB::table('TBLUSR')
+                    ->where('TUUSERIY','=',$fTBLUSR['TUUSERIY'])      
+                    ->delete();
                 break;
         }
 
-        $Hasil = $this->doExecuteQuery( $request->AppUserName, $SqlStm, $Delimiter);  
-        // $Hasil->message = ""; 
-        // $Hasil = array("success"=> $BerHasil, "message"=> " Sukses... ".$message.$b);
-        return response()->jSon($Hasil);
 
     }
-
-
 
 
     public function LoadTBLUAM(Request $request) {

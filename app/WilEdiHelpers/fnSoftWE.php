@@ -353,22 +353,23 @@
     } 
 
     function fnCrtObjCmb(&$Obj, $Show, $FFTipe, $Mode, $Panel, $Code, $Name, $Description = "", $DefaultValue, 
-                                $Jenis, $TableCode, $Required = true, $Condition = "") {   
+                                $Jenis, $TableCode, $Required = true, $Split = "", $Condition = "", $Table="TBLSYS") {   
 
-        $ListData = fnGetComboData("TBLSYS", $TableCode, $Condition = "");
+        $ListData = fnGetComboData($Table, $TableCode, $Condition = "");
         /* 
             $Jenis = ['Single','Radio','Multiple'] 
          */
         fnCrtObj($Obj, $Show, $FFTipe, $Mode, "cmb", $Panel, $Code, $Name, $Description, $Required);
         fnUpdObj($Obj, $Code, array("Jenis" => strtoupper($Jenis),
                                     "DefaultValue" => $DefaultValue,
-                                    "Options" => $ListData) );
+                                    "Options" => $ListData,
+                                    "SplitParam" => $Split) );
     } 
 
     function fnCrtObjRad(&$Obj, $Show, $FFTipe, $Mode, $Panel, $Code, $Name, $Description = "", $DefaultValue, 
-                                $Jenis, $TableCode, $Required = true, $Condition = "") {   
+                                $Jenis, $TableCode, $Required = true, $Split = "", $Condition = "", $Table="TBLSYS") {   
 
-        $ListData = fnGetComboData("TBLSYS", $TableCode, $Condition = "");
+        $ListData = fnGetComboData($Table, $TableCode, $Condition = "");
         /* 
             $Jenis = ['Radio','Toggle'] 
          */
@@ -377,7 +378,8 @@
                                     "Jenis" => strtolower($Jenis),
                                     "DefaultValue" => $DefaultValue,
                                     "Value" => strtolower($Jenis) == 'toggle' ? [] : '',
-                                    "Options" => $ListData) );
+                                    "Options" => $ListData,
+                                    "SplitParam" => $Split) );
     } 
 
     function fnCrtObjTog(&$Obj, $Show, $FFTipe, $Mode, $Panel, $Code, $Name, $Description = "", $DefaultValue, 
@@ -681,152 +683,43 @@
         return $NoIY;    
     }
 
-    function fnSetExecuteQuery ($UserName, $SQLSTM, $DELIMITER = "") {
-    
+    function fnSetExecuteQuery ($UserName, $cm) {
+        $HasilExec = null;
         try{
-            // DB::insert($s['all']);
-            // DB::insert($s['syntax'],$s['params']);
-
-            // DB::unprepared("Exec StpTBLUSR '1','CobaCoba','laravel','','','edseds','abcdef','a60937eba57758ed45b6d3e91e8659f3','12345678','','','','','','','','1','','';
-            //             Exec StpTBLUSR '1','CobaCoba','laravel','','','edsedq','abcdef','a60937eba57758ed45b6d3e91e8659f3','12345678','','','','','','','','1','','';
-            //             ");
-
-            // $a = "Exec StpTBLUSR '1','CobaCoba','laravel','','','edseds','abcdef','a60937eba57758ed45b6d3e91e8659f3','12345678','','','','','','','','1','','';|||||||Exec StpTBLUSR '1','CobaCoba','laravel','','','edsedq','abcdef','a60937eba57758ed45b6d3e91e8659f3','12345678','','','','','','','','1','','';|||||||
-            // ";
-            // DB::unprepared("Exec StpExecuteQuery 'CobaCoba','laravel', '".str_replace("'","''",$a)."', '|||||||' ");
-
-            // DB::insert("Exec StpExecuteQuery :user, :source, :sql, :delimiter ",
-            //             array(":user"=> "CobaCoba", 
-            //                   ":source"=> "laravel",
-            //                 //   ":sql"=> str_replace("'","''",$SQLSTM),
-            //                   ":sql"=> $SQLSTM,
-            //                   ":delimiter"=> $DELIMITER,
-            //                   ) );
-
-
-            DB::enableQueryLog();
-            DB::transaction(function () use($UserName, $SQLSTM) {
-                // DB::table('TBLDSC')
-                //     ->where('TDDSCD','=',$FinalField['TDDSCD'])                    
-                //     ->update($FinalField);
-
-                // DB::table('TBLDSC')
-                //     ->where('TDDSCD','=',$FinalField['TDDSCD'])                    
-                //     ->update(['TDREMK'=>'wwww']);          
-
-            // $RoutePath = $request->Controller."@".$request->Method;
-// $Hasil = App::call('\App\Http\Controllers\Forms\\'.$RoutePath);
-
-                foreach($SQLSTM as $k => $Data) {
-                    
-                    $Prefix = substr(array_values($Data['Field'])[0],0,2);
-                    switch ($Data['Mode']) {
-                        case "I":
-                            if(isset($Data['Iy'])) { // Begin Insert TBLNOR
-                                if($Data['Iy']!="") {
-                                    $NoIY = 1;
-                                    $TBLNOUR = DB::table("TBLNOR")
-                                                    ->Select(['TNTABL' , 'TNNOUR'])
-                                                    ->where('TNTABL','=',$Data['Table'])
-                                                    // ->where('TNTABL','=','TBLMNU')
-                                                    ->get();
-                                    if (count($TBLNOUR)) {
-                                        // var_dump($TBLNOUR[0]);
-                                        $NoIY = ($TBLNOUR[0]->TNNOUR+1);
-                                        $TBLNOR = array("TNTABL"=>$Data['Table'],"TNNOUR"=>$NoIY);
-                                        $FinalTBLNOR = fnGetSintaxCRUD ($UserName, $TBLNOR, '1', "TN", ['TNTABL','TNNOUR'], "" );
-                                        DB::table('TBLNOR')
-                                            ->where('TNTABL','=',$Data['Table'])
-                                            ->update($FinalTBLNOR);   
-                                    } else {
-                                        $TBLNOR = array("TNTABL"=>$Data['Table'],"TNNOUR"=>"1");
-                                        $FinalTBLNOR = fnGetSintaxCRUD ($UserName, $TBLNOR, '1', "TN", ['TNTABL','TNNOUR'], "" );
-                                        DB::table('TBLNOR')
-                                            ->insert($FinalTBLNOR);   
-                                    }
-                                    $Data['Data'][$Data['Iy']] = $NoIY;
-                                }
-                            } // End Insert TBLNOR
-
-
-                            $FinalField = fnGetSintaxCRUD ($UserName, $Data['Data'], '1', $Prefix, $Data['Field'], $Data['UnikNo'] );
-                            DB::table($Data['Table'])->insert($FinalField);
-                            break;
-                        case "U":
-                            $FinalField = fnGetSintaxCRUD ($UserName, $Data['Data'], '2', $Prefix, $Data['Field'], $Data['UnikNo'] );
-                            DB::table($Data['Table'])
-                                ->where([$Data['Where']])                    
-                                ->update($FinalField);
-                            break;
-                        case "D":
-                            DB::table($Data['Table'])
-                                ->where([$Data['Where']])      
-                                ->delete();
-                            break;
-                    }
-
-                }
-
+            DB::enableQueryLog();            
+            $HasilExec = DB::transaction(function () use($UserName, $cm) {
+                return App::call('\App\Http\Controllers\Forms\\'.$cm);
             });
             $QueryLog = DB::getQueryLog();
             fnSaveSqlSintax($QueryLog, $UserName);
             $BerHasil = true;
         } catch (\Exception $e){ 
-            // var_dump($e);
-            // $message = fnGetErrorMessage($e);
-            // $message = $e->getMessage();
-            // $message = $e->getCode();
-            // $message = $e->getSql();
-            // $message = $e->errorInfo[0];
-            // $message = $e->errorInfo[1];
-            $message = $e->errorInfo[2];
-            // $eCode = $e;
-            $eCode = fnSaveSqlError($e, $UserName);
-            // $message = $a->sql;
 
-            $BerHasil = false;
-        }
-
-        if ($BerHasil) {
-            $Hasil = array("success"=> true, "message"=> "*** Success ***", "eCode"=>"");
-            // $Hasil = array("success"=> true, "message"=> "*** Success ***");
-        } else {
-            $Hasil = array("success"=> false, "message"=> $message, "eCode"=>$eCode);
-            // $Hasil = array("success"=> false, "message"=> $message);
-        }
-
-        return $Hasil;
-    }
-
-
-
-    function fnSetExecuteQuery2 ($UserName, $cm) {
-    
-        try{
-
-            DB::enableQueryLog();
-            DB::transaction(function () use($UserName, $cm) {
-
-                $Hasil = App::call('\App\Http\Controllers\Forms\\'.$cm);
-
-            });
-            $QueryLog = DB::getQueryLog();
-            fnSaveSqlSintax($QueryLog, $UserName);
-            $BerHasil = true;
-        } catch (\Exception $e){ 
             $message = $e->errorInfo[2];
             // $eCode = $e;
             $eCode = fnSaveSqlError($e, $UserName);
             // $message = $a->sql;
             $BerHasil = false;
-        }
+        }        
+        /*
+            Jika StpXXXXX tidak Response apa apa
+            maka akan masuk is_null($hasilExec)
 
-        if ($BerHasil) {
-            $Hasil = array("success"=> true, "message"=> "*** Success ***", "eCode"=>"");
-            // $Hasil = array("success"=> true, "message"=> "*** Success ***");
+            Jika StpXXXXX ada Responses apa apa
+            maka akan pake response StpXXXXX
+        */
+        if (is_null($HasilExec)) {
+            if ($BerHasil) {
+                $Hasil = array("success"=> true, "message"=> "*** Success ***", "eCode"=>"");
+                // $Hasil = array("success"=> true, "message"=> "*** Success ***");
+            } else {
+                $Hasil = array("success"=> false, "message"=> $message, "eCode"=>$eCode);
+                // $Hasil = array("success"=> false, "message"=> $message);
+            }
         } else {
-            $Hasil = array("success"=> false, "message"=> $message, "eCode"=>$eCode);
-            // $Hasil = array("success"=> false, "message"=> $message);
+            $Hasil = json_encode($HasilExec);
+            $Hasil = json_decode($Hasil, true);
+            $Hasil = $Hasil['original'];
         }
 
         return $Hasil;

@@ -169,7 +169,7 @@ class cSHHEAD extends cWeController {
 
 
         // $Hasil = fnSetExecuteQuery($SqlStm,$Delimiter);    
-        $Hasil = $this->doExecuteQuery2( $request->AppUserName, "cSHHEAD@StpSHHEAD");  
+        $Hasil = $this->doExecuteQuery( $request->AppUserName, "cSHHEAD@StpSHHEAD");  
         // $Hasil->message = ""; 
         // $Hasil = array("success"=> $BerHasil, "message"=> " Sukses... ".$message.$b);
         return response()->jSon($Hasil);
@@ -226,6 +226,11 @@ class cSHHEAD extends cWeController {
                     DB::table('SHLINE')->insert($FinalField);
                 } 
 
+
+                $Hasil = array("success"=> true, "message"=> " No Transaksi : ".$fSHHEAD['SHSHNO']);
+                return response()->jSon($Hasil);
+
+
                 break;
             case "2":
                 $FinalField = fnGetSintaxCRUD ($UserName, $fSHHEAD, 
@@ -233,11 +238,11 @@ class cSHHEAD extends cWeController {
                     ['SHDATE','SHBPNOIY','SHTOTL','SHREMK'], 
                     $UnikNo );
                 DB::table('SHHEAD')
-                    ->where(['SHSHNOIY','=',$fSHHEAD['SHSHNOIY']])                    
+                    ->where('SHSHNOIY','=',$fSHHEAD['SHSHNOIY'])                    
                     ->update($FinalField);
 
                 DB::table('SHLINE')
-                    ->where(['SLSHNOIY','=',$fSHHEAD['SHSHNOIY']])      
+                    ->where('SLSHNOIY','=',$fSHHEAD['SHSHNOIY'])      
                     ->delete();
 
                 $DataDetail = $fSHHEAD['SHLINE']; 
@@ -267,54 +272,5 @@ class cSHHEAD extends cWeController {
 
     }
 
-
-    public function LoadGridXXXX(Request $request) {
-        echo "Masuk<br>";
-
-
-        $SHHEAD = SHHEAD::noLock()
-                ->where([
-                    ['SHDLFG', '=', '0'],
-                  ])
-                ->get();
-        return response()->jSon($SHHEAD);  
-
-        $SHHEAD = SHHEAD::noLock()
-                ->where([
-                    ['SHDLFG', '=', '0'],
-                  ])
-                ->get()->first()->tblsys;
-        
-
-    // public function scopeGetTableColumns() {
-    //     return $this->getConnection()->getSchemaBuilder()->getColumnListing($this->getTable());
-    // }  
-
-        $ABC = SHHEAD::getConnection()->get();
-        dd($ABC);
-
-        foreach ($SHHEAD as $key => $value) {
-            # code...
-            echo $key; echo $value; echo "<br>";
-            print_r($SHHEAD[$key]);
-            echo "<hr>";
-
-            foreach ($SHHEAD[$key]->toArray() as $k => $v) {
-                echo $k."-".$v." (".getType($v).") "; echo "<br>";
-            }
-        }
-        echo "<hr>";
-        $SHHEAD = SHHEAD::noLock()->find(1);
-        echo $SHHEAD;
-
-        echo "<hr>";
-        $SHHEAD = SHHEAD::noLock()->get();
-        dd($SHHEAD);
-
-        return $SHHEAD;
-
-        return response()->jSon($SHHEAD);    
-
-    }
 
 }

@@ -15,7 +15,7 @@ class cTBLSLF extends cWeController {
 
     public function LoadGrid(Request $request) {
 
-        fnCrtColGrid($this->GridObj, "act", 1, 0, '', 'ACTION', 'Action', 50);
+        fnCrtColGrid($this->GridObj, "act", 1, 0, '001', 'ACTION', 'Action', 50);
         fnCrtColGrid($this->GridObj, "num", 1, 1, '', 'TQNOMRIY', 'No', 100);
         fnCrtColGrid($this->GridObj, "txt", 1, 1, '', 'TQUSER', 'UserName', 100);
         fnCrtColGrid($this->GridObj, "txt", 1, 1, '', 'TQSTMT', 'Statement', 100, "", 200);

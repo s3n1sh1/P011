@@ -102,8 +102,16 @@ class cTBLMNU extends cWeController {
 
     }   
 
+    public function SaveData (Request $request) {
 
-    public function SaveData(Request $request) {
+        $Hasil = $this->doExecuteQuery( $request->AppUserName, "cTBLMNU@StpTBLMNU");  
+        // $Hasil->message = ""; 
+        // $Hasil = array("success"=> $BerHasil, "message"=> " Sukses... ".$message.$b);
+        return response()->jSon($Hasil);
+
+    }
+
+    public function StpTBLMNU(Request $request) {
 
 
         $fTBLMNU = json_encode($request->frmTBLMNU);
@@ -123,51 +131,37 @@ class cTBLMNU extends cWeController {
             return response()->jSon($HasilCheckBFCS);
         }
 
-        $SqlStm = [];
+
+        $UserName = $request->AppUserName;
+
         switch ($request->Mode) {
             case "1":
-                $fTBLMNU['TMACES'] = implode("",$fTBLMNU['TMACES']);
-                array_push($SqlStm, array(
-                                        "UnikNo"=>$UnikNo,
-                                        "Mode"=>"I",
-                                        "Data"=>$fTBLMNU,
-                                        "Table"=>"TBLMNU",
-                                        "Field"=>['TMMENUIY','TMNOMR','TMSCUT','TMMENU','TMACES','TMDPFG','TMSYFG',
-                                                  'TMBCDT','TMFWDT','TMURLW','TMGRUP','TMUSRM','TMREMK'],
-                                        "Where"=>[],
-                                        "Iy"=>"TMMENUIY"
-                                    ));
+                $fTBLMNU['TMMENUIY'] = fnTBLNOR('TBLMNU', $UserName);
+                $FinalField = fnGetSintaxCRUD ($UserName, $fTBLMNU, 
+                    '1', "TM", 
+                    ['TMMENUIY','TMNOMR','TMSCUT','TMMENU','TMACES','TMDPFG','TMSYFG',
+                     'TMBCDT','TMFWDT','TMURLW','TMGRUP','TMUSRM','TMREMK'], 
+                    $UnikNo );
+                DB::table('TBLMNU')->insert($FinalField);
                 break;
             case "2":
-                $fTBLMNU['TMACES'] = implode("",$fTBLMNU['TMACES']);
-                array_push($SqlStm, array(
-                                        "UnikNo"=>$UnikNo,
-                                        "Mode"=>"U",
-                                        "Data"=>$fTBLMNU,
-                                        "Table"=>"TBLMNU",
-                                        "Field"=>['TMNOMR','TMSCUT','TMMENU','TMACES','TMDPFG','TMSYFG','TMBCDT','TMFWDT',
-                                                  'TMURLW','TMGRUP','TMUSRM','TMREMK'],
-                                        "Where"=>['TMMENUIY','=',$fTBLMNU['TMMENUIY']],
-                                    ));
+                $FinalField = fnGetSintaxCRUD ($UserName, $fTBLMNU, 
+                    '2', "TM", 
+                    ['TMNOMR','TMSCUT','TMMENU','TMACES','TMDPFG','TMSYFG','TMBCDT','TMFWDT',
+                     'TMURLW','TMGRUP','TMUSRM','TMREMK'], 
+                    $UnikNo );
+                DB::table('TBLMNU')
+                    ->where('TMMENUIY','=',$fTBLMNU['TMMENUIY'])
+                    ->update($FinalField);
                 break;
             case "3":
-                array_push($SqlStm, array(
-                                        "UnikNo"=>$UnikNo,
-                                        "Mode"=>"D",
-                                        "Data"=>$fTBLMNU,
-                                        "Table"=>"TBLMNU",
-                                        "Field"=>['TMMENUIY'],
-                                        "Where"=>['TMMENUIY','=',$fTBLMNU['TMMENUIY']],
-                                    ));
+                DB::table('TBLMNU')
+                    ->where('TMMENUIY','=',$fTBLMNU['TMMENUIY'])      
+                    ->delete();
                 break;
         }
 
-        $Hasil = $this->doExecuteQuery( $request->AppUserName, $SqlStm, $Delimiter);  
-        // $Hasil->message = ""; 
-        // $Hasil = array("success"=> $BerHasil, "message"=> " Sukses... ".$message.$b);
-        return response()->jSon($Hasil);
 
     }
-
 
 }

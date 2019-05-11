@@ -62,11 +62,6 @@ class cTBLDSC extends cWeController {
         fnCrtObjRmk($this->FormObj, 1, "FF", "0", "Panel1", "TDREMK", "Remark", "", false, 100);
             // fnUpdObj($this->FormObj, "TDREMK", array("Helper"=>'Terserah anda mau isi apa?'));
 
-        // fnCrtObjTxt($this->FormObj, 1, "FF", "0", "Panel1", "TDDSNM", "Description", "", true, 0, 0, "", "Awal", "Akhir");
-        // fnCrtObjNum($this->FormObj, 1, "FF", "0", "Panel1", "TDLGTH", "Length Character", "", false, 2, "Num"," Char", 1, 1, 99);
-        // fnCrtObjRmk($this->FormObj, 1, "FF", "0", "Panel1", "TDREMK", "Remark", "Everything You Want", false, 100);
-        //     fnUpdObj($this->FormObj, "TDREMK", array("Helper"=>'Terserah anda mau isi apa?'));
-
         fnCrtObjDefault($this->FormObj,"TD");    
         // dd($this->FormObj);
 
@@ -94,7 +89,17 @@ class cTBLDSC extends cWeController {
     }   
 
 
-    public function SaveData(Request $request) {
+
+    public function SaveData (Request $request) {
+
+        $Hasil = $this->doExecuteQuery( $request->AppUserName, "cTBLDSC@StpTBLDSC");  
+        // $Hasil->message = ""; 
+        // $Hasil = array("success"=> $BerHasil, "message"=> " Sukses... ".$message.$b);
+        return response()->jSon($Hasil);
+
+    }
+
+    public function StpTBLDSC(Request $request) {
 
 
         $fTBLDSC = json_encode($request->frmTBLDSC);
@@ -114,47 +119,35 @@ class cTBLDSC extends cWeController {
             return response()->jSon($HasilCheckBFCS);
         }
 
-        $SqlStm = [];
+        $UserName = $request->AppUserName;
+
         switch ($request->Mode) {
             case "1":
-                array_push($SqlStm, array(
-                                        "UnikNo"=>$UnikNo,
-                                        "Mode"=>"I",
-                                        "Data"=>$fTBLDSC,
-                                        "Table"=>"TBLDSC",
-                                        "Field"=>['TDDSCDIY','TDDSCD','TDDSNM','TDLGTH','TDDPFG','TDREMK'],
-                                        "Where"=>[],
-                                        "Iy"=>"TDDSCDIY"
-                                    ));
+                $fTBLDSC['TDDSCDIY'] = fnTBLNOR('TBLDSC', $UserName);
+                $FinalField = fnGetSintaxCRUD ($UserName, $fTBLDSC, 
+                    '1', "TD", 
+                    ['TDDSCDIY','TDDSCD','TDDSNM','TDLGTH','TDDPFG','TDREMK'], 
+                    $UnikNo );
+                DB::table('TBLDSC')->insert($FinalField);
+
                 break;
             case "2":
-                array_push($SqlStm, array(
-                                        "UnikNo"=>$UnikNo,
-                                        "Mode"=>"U",
-                                        "Data"=>$fTBLDSC,
-                                        "Table"=>"TBLDSC",
-                                        "Field"=>['TDDSNM','TDLGTH','TDDPFG','TDREMK'],
-                                        "Where"=>['TDDSCDIY','=',$fTBLDSC['TDDSCDIY']],
-                                    ));
+                $FinalField = fnGetSintaxCRUD ($UserName, $fTBLDSC, 
+                    '2', "TD", 
+                    ['TDDSNM','TDLGTH','TDDPFG','TDREMK'], 
+                    $UnikNo );
+                DB::table('TBLDSC')
+                    ->where('TDDSCDIY','=',$fTBLDSC['TDDSCDIY'])
+                    ->update($FinalField);
+
                 break;
             case "3":
-                array_push($SqlStm, array(
-                                        "UnikNo"=>$UnikNo,
-                                        "Mode"=>"D",
-                                        "Data"=>$fTBLDSC,
-                                        "Table"=>"TBLDSC",
-                                        "Field"=>['TDDSCDIY'],
-                                        "Where"=>['TDDSCDIY','=',$fTBLDSC['TDDSCDIY']],
-                                    ));
+                DB::table('TBLDSC')
+                    ->where('TDDSCDIY','=',$fTBLDSC['TDDSCDIY'])      
+                    ->delete();
                 break;
         }
 
-
-        // $Hasil = fnSetExecuteQuery($SqlStm,$Delimiter);    
-        $Hasil = $this->doExecuteQuery( $request->AppUserName, $SqlStm, $Delimiter);  
-        // $Hasil->message = ""; 
-        // $Hasil = array("success"=> $BerHasil, "message"=> " Sukses... ".$message.$b);
-        return response()->jSon($Hasil);
 
     }
 

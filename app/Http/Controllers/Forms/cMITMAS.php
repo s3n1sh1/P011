@@ -61,12 +61,6 @@ class cMITMAS extends cWeController {
         fnCrtObjTxt($this->FormObj, 1, "FF", "0", "Panel1", "MMUNMS", "Unit Measurement", "", true);
         fnCrtObjRad($this->FormObj, 1, "FF", "0", "Panel1", "MMDPFG", "Status", "", "1", "Radio", "DSPLY");
         fnCrtObjRmk($this->FormObj, 1, "FF", "0", "Panel1", "MMREMK", "Remark", "", false, 100);
-            // fnUpdObj($this->FormObj, "MMREMK", array("Helper"=>'Terserah anda mau isi apa?'));
-
-        // fnCrtObjTxt($this->FormObj, 1, "FF", "0", "Panel1", "MMITNM", "Description", "", true, 0, 0, "", "Awal", "Akhir");
-        // fnCrtObjNum($this->FormObj, 1, "FF", "0", "Panel1", "MMITDS", "Length Character", "", false, 2, "Num"," Char", 1, 1, 99);
-        // fnCrtObjRmk($this->FormObj, 1, "FF", "0", "Panel1", "MMREMK", "Remark", "Everything You Want", false, 100);
-        //     fnUpdObj($this->FormObj, "MMREMK", array("Helper"=>'Terserah anda mau isi apa?'));
 
         fnCrtObjDefault($this->FormObj,"MM");    
         // dd($this->FormObj);
@@ -94,8 +88,16 @@ class cMITMAS extends cWeController {
 
     }   
 
+    public function SaveData (Request $request) {
 
-    public function SaveData(Request $request) {
+        $Hasil = $this->doExecuteQuery( $request->AppUserName, "cMITMAS@StpMITMAS");  
+        // $Hasil->message = ""; 
+        // $Hasil = array("success"=> $BerHasil, "message"=> " Sukses... ".$message.$b);
+        return response()->jSon($Hasil);
+
+    }
+
+    public function StpMITMAS(Request $request) {
 
 
         $fMITMAS = json_encode($request->frmMITMAS);
@@ -115,98 +117,39 @@ class cMITMAS extends cWeController {
             return response()->jSon($HasilCheckBFCS);
         }
 
-        $SqlStm = [];
+        $UserName = $request->AppUserName;
+
         switch ($request->Mode) {
             case "1":
-                array_push($SqlStm, array(
-                                        "UnikNo"=>$UnikNo,
-                                        "Mode"=>"I",
-                                        "Data"=>$fMITMAS,
-                                        "Table"=>"MITMAS",
-                                        "Field"=>['MMITNOIY','MMITNO','MMITNM','MMITDS','MMUNMS','MMDPFG','MMREMK'],
-                                        "Where"=>[],
-                                        "Iy"=>"MMITNOIY"
-                                    ));
+                $fMITMAS['MMITNOIY'] = fnTBLNOR('MITMAS', $UserName);
+                $FinalField = fnGetSintaxCRUD ($UserName, $fMITMAS, 
+                    '1', "MM", 
+                    ['MMITNOIY','MMITNO','MMITNM','MMITDS','MMUNMS','MMDPFG','MMREMK'], 
+                    $UnikNo );
+                DB::table('MITMAS')->insert($FinalField);
+
                 break;
             case "2":
-                array_push($SqlStm, array(
-                                        "UnikNo"=>$UnikNo,
-                                        "Mode"=>"U",
-                                        "Data"=>$fMITMAS,
-                                        "Table"=>"MITMAS",
-                                        "Field"=>['MMITNM','MMITDS','MMUNMS','MMDPFG','MMREMK'],
-                                        "Where"=>['MMITNOIY','=',$fMITMAS['MMITNOIY']],
-                                    ));
+                $FinalField = fnGetSintaxCRUD ($UserName, $fMITMAS, 
+                    '2', "MM", 
+                    ['MMITNM','MMITDS','MMUNMS','MMDPFG','MMREMK'], 
+                    $UnikNo );
+                DB::table('MITMAS')
+                    ->where('MMITNOIY','=',$fMITMAS['MMITNOIY'])
+                    ->update($FinalField);
+
                 break;
             case "3":
-                array_push($SqlStm, array(
-                                        "UnikNo"=>$UnikNo,
-                                        "Mode"=>"D",
-                                        "Data"=>$fMITMAS,
-                                        "Table"=>"MITMAS",
-                                        "Field"=>['MMITNOIY'],
-                                        "Where"=>['MMITNOIY','=',$fMITMAS['MMITNOIY']],
-                                    ));
+                DB::table('MITMAS')
+                    ->where('MMITNOIY','=',$fMITMAS['MMITNOIY'])      
+                    ->delete();
                 break;
         }
 
 
-        // $Hasil = fnSetExecuteQuery($SqlStm,$Delimiter);    
-        $Hasil = $this->doExecuteQuery( $request->AppUserName, $SqlStm, $Delimiter);  
-        // $Hasil->message = ""; 
-        // $Hasil = array("success"=> $BerHasil, "message"=> " Sukses... ".$message.$b);
-        return response()->jSon($Hasil);
-
     }
 
 
-    public function LoadGridXXXX(Request $request) {
-        echo "Masuk<br>";
 
-
-        $MITMAS = MITMAS::noLock()
-                ->where([
-                    ['MMDLFG', '=', '0'],
-                  ])
-                ->get();
-        return response()->jSon($MITMAS);  
-
-        $MITMAS = MITMAS::noLock()
-                ->where([
-                    ['MMDLFG', '=', '0'],
-                  ])
-                ->get()->first()->tblsys;
-        
-
-    // public function scopeGetTableColumns() {
-    //     return $this->getConnection()->getSchemaBuilder()->getColumnListing($this->getTable());
-    // }  
-
-        $ABC = MITMAS::getConnection()->get();
-        dd($ABC);
-
-        foreach ($MITMAS as $key => $value) {
-            # code...
-            echo $key; echo $value; echo "<br>";
-            print_r($MITMAS[$key]);
-            echo "<hr>";
-
-            foreach ($MITMAS[$key]->toArray() as $k => $v) {
-                echo $k."-".$v." (".getType($v).") "; echo "<br>";
-            }
-        }
-        echo "<hr>";
-        $MITMAS = MITMAS::noLock()->find(1);
-        echo $MITMAS;
-
-        echo "<hr>";
-        $MITMAS = MITMAS::noLock()->get();
-        dd($MITMAS);
-
-        return $MITMAS;
-
-        return response()->jSon($MITMAS);    
-
-    }
 
 }

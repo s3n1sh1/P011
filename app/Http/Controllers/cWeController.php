@@ -40,35 +40,21 @@ class cWeController extends Controller
         return array( "success"=> $Sukses, "data"=> $Data, "message"=> $Message);
     }
 
+    public function doExecuteQuery($UserName, $cm) {
 
-
-    public function doExecuteQuery($UserName, $SqlStm, $Delimiter) {
-
-        $Hasil = fnSetExecuteQuery($UserName, $SqlStm, $Delimiter); 
+        $Hasil = fnSetExecuteQuery($UserName, $cm); 
         // return $Hasil;
 
         if(!$Hasil['success']) {
-          $Data = ["success"=>false,
-                   "message"=>$this->getErrorMessage($Hasil['eCode']),
-                   "code"=>$Hasil['eCode']['error_code'], ];
-        } else {
-          $Data = ["success"=>true,
-                   "message"=>$Hasil['message'],
-                   "code"=>"", ];
-        }
-        return $Data;
-
-    }
-
-    public function doExecuteQuery2($UserName, $cm) {
-
-        $Hasil = fnSetExecuteQuery2($UserName, $cm); 
-        // return $Hasil;
-
-        if(!$Hasil['success']) {
-          $Data = ["success"=>false,
-                   "message"=>$this->getErrorMessage($Hasil['eCode']),
-                   "code"=>$Hasil['eCode']['error_code'], ];
+          if (!isset($Hasil['eCode'])) {
+            $Data = ["success"=>false,
+                     "message"=>$Hasil['message'],
+                     "code"=>"", ];
+          } else {
+            $Data = ["success"=>false,
+                     "message"=>$this->getErrorMessage($Hasil['eCode']),
+                     "code"=>$Hasil['eCode']['error_code'], ];
+          }
         } else {
           $Data = ["success"=>true,
                    "message"=>$Hasil['message'],

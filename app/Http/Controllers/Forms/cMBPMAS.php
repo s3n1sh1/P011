@@ -60,12 +60,6 @@ class cMBPMAS extends cWeController {
         fnCrtObjRmk($this->FormObj, 1, "FF", "0", "Panel1", "BPADDR", "Address", "", false, 100);
         fnCrtObjRad($this->FormObj, 1, "FF", "0", "Panel1", "BPDPFG", "Status", "", "1", "Radio", "DSPLY");
         fnCrtObjRmk($this->FormObj, 1, "FF", "0", "Panel1", "BPREMK", "Remark", "", false, 100);
-            // fnUpdObj($this->FormObj, "BPREMK", array("Helper"=>'Terserah anda mau isi apa?'));
-
-        // fnCrtObjTxt($this->FormObj, 1, "FF", "0", "Panel1", "BPNAME", "Description", "", true, 0, 0, "", "Awal", "Akhir");
-        // fnCrtObjNum($this->FormObj, 1, "FF", "0", "Panel1", "BPADDR", "Length Character", "", false, 2, "Num"," Char", 1, 1, 99);
-        // fnCrtObjRmk($this->FormObj, 1, "FF", "0", "Panel1", "BPREMK", "Remark", "Everything You Want", false, 100);
-        //     fnUpdObj($this->FormObj, "BPREMK", array("Helper"=>'Terserah anda mau isi apa?'));
 
         fnCrtObjDefault($this->FormObj,"BP");    
         // dd($this->FormObj);
@@ -82,7 +76,7 @@ class cMBPMAS extends cWeController {
         $MBPMAS = MBPMAS::noLock()
                 ->select( $FillFormObject )
                 ->where([
-                    ['BPBPNOIY', '=', $request->TDDSCDIY],
+                    ['BPBPNOIY', '=', $request->BPBPNOIY],
                     // ['BPBPNOIY', '=', '1'],
                   ])->get();
         // dd($MBPMAS);
@@ -94,7 +88,70 @@ class cMBPMAS extends cWeController {
     }   
 
 
-    public function SaveData(Request $request) {
+    public function SaveData (Request $request) {
+
+        $Hasil = $this->doExecuteQuery( $request->AppUserName, "cMBPMAS@StpMBPMAS");  
+        // $Hasil->message = ""; 
+        // $Hasil = array("success"=> $BerHasil, "message"=> " Sukses... ".$message.$b);
+        return response()->jSon($Hasil);
+
+    }
+
+    public function StpMBPMAS(Request $request) {
+
+
+        $fMBPMAS = json_encode($request->frmMBPMAS);
+        $fMBPMAS = json_decode($fMBPMAS, true);
+
+        $Delimiter = "";
+        $UnikNo = fnGenUnikNo($Delimiter);
+
+        $HasilCheckBFCS = fnCheckBFCS (
+                            array("Table"=>"MBPMAS", 
+                                  "Key"=>"BPBPNOIY", 
+                                  "Data"=>$fMBPMAS, 
+                                  "Mode"=>$request->Mode,
+                                  "Menu"=>"", 
+                                  "FieldTransDate"=>""));
+        if (!$HasilCheckBFCS["success"]) {
+            return response()->jSon($HasilCheckBFCS);
+        }
+
+        $UserName = $request->AppUserName;
+
+        switch ($request->Mode) {
+            case "1":
+                $fMBPMAS['BPBPNOIY'] = fnTBLNOR('MBPMAS', $UserName);
+                $FinalField = fnGetSintaxCRUD ($UserName, $fMBPMAS, 
+                    '1', "BP", 
+                    ['BPBPNOIY','BPBPNO','BPNAME','BPADDR','BPDPFG','BPREMK'], 
+                    $UnikNo );
+                DB::table('MBPMAS')->insert($FinalField);
+
+                break;
+            case "2":
+                $FinalField = fnGetSintaxCRUD ($UserName, $fMBPMAS, 
+                    '2', "BP", 
+                    ['BPNAME','BPADDR','BPDPFG','BPREMK'], 
+                    $UnikNo );
+                DB::table('MBPMAS')
+                    ->where('BPBPNOIY','=',$fMBPMAS['BPBPNOIY'])
+                    ->update($FinalField);
+
+                break;
+            case "3":
+                DB::table('MBPMAS')
+                    ->where('BPBPNOIY','=',$fMBPMAS['BPBPNOIY'])      
+                    ->delete();
+                break;
+        }
+
+
+    }
+
+
+
+    public function SaveDataXXX(Request $request) {
 
 
         $fMBPMAS = json_encode($request->frmMBPMAS);
@@ -158,54 +215,5 @@ class cMBPMAS extends cWeController {
 
     }
 
-
-    public function LoadGridXXXX(Request $request) {
-        echo "Masuk<br>";
-
-
-        $MBPMAS = MBPMAS::noLock()
-                ->where([
-                    ['BPDLFG', '=', '0'],
-                  ])
-                ->get();
-        return response()->jSon($MBPMAS);  
-
-        $MBPMAS = MBPMAS::noLock()
-                ->where([
-                    ['BPDLFG', '=', '0'],
-                  ])
-                ->get()->first()->tblsys;
-        
-
-    // public function scopeGetTableColumns() {
-    //     return $this->getConnection()->getSchemaBuilder()->getColumnListing($this->getTable());
-    // }  
-
-        $ABC = MBPMAS::getConnection()->get();
-        dd($ABC);
-
-        foreach ($MBPMAS as $key => $value) {
-            # code...
-            echo $key; echo $value; echo "<br>";
-            print_r($MBPMAS[$key]);
-            echo "<hr>";
-
-            foreach ($MBPMAS[$key]->toArray() as $k => $v) {
-                echo $k."-".$v." (".getType($v).") "; echo "<br>";
-            }
-        }
-        echo "<hr>";
-        $MBPMAS = MBPMAS::noLock()->find(1);
-        echo $MBPMAS;
-
-        echo "<hr>";
-        $MBPMAS = MBPMAS::noLock()->get();
-        dd($MBPMAS);
-
-        return $MBPMAS;
-
-        return response()->jSon($MBPMAS);    
-
-    }
 
 }
