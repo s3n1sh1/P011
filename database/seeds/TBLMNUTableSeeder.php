@@ -176,7 +176,7 @@ class TBLMNUTableSeeder extends Seeder
         $TBLMNU = new TBLMNU();
         $TBLMNU->TMMENUIY = $i++;
         $TBLMNU->TMNOMR = '0215';
-        $TBLMNU->TMGRUP = '';
+        $TBLMNU->TMGRUP = 'FORM01';
         $TBLMNU->TMMENU = 'ITEM';
         $TBLMNU->TMDESC = '';
         $TBLMNU->TMSCUT = 'MAS015';
@@ -194,7 +194,7 @@ class TBLMNUTableSeeder extends Seeder
         $TBLMNU = new TBLMNU();
         $TBLMNU->TMMENUIY = $i++;
         $TBLMNU->TMNOMR = '0220';
-        $TBLMNU->TMGRUP = '';
+        $TBLMNU->TMGRUP = 'FORM01';
         $TBLMNU->TMMENU = 'BISNIS PARTNER';
         $TBLMNU->TMDESC = '';
         $TBLMNU->TMSCUT = 'MAS020';
