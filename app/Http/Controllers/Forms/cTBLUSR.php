@@ -19,7 +19,7 @@ class cTBLUSR extends cWeController {
         fnCrtColGrid($this->GridObj, "hdn", 1, 1, '', 'TUUSERIY', 'User IY', 100);
         fnCrtColGrid($this->GridObj, "txt", 1, 1, '', 'TUUSER', 'Login Name', 100);
         fnCrtColGrid($this->GridObj, "txt", 1, 1, '', 'TUNAME', 'Full Name', 100);
-        fnCrtColGrid($this->GridObj, "txt", 1, 1, '', 'TUPSWD', 'Password', 100);
+        // fnCrtColGrid($this->GridObj, "txt", 1, 1, '', 'TUPSWD', 'Password', 100);
         fnCrtColGrid($this->GridObj, "txt", 0, 1, '', 'TUEMID', 'Employee ID', 100);
         fnCrtColGrid($this->GridObj, "txt", 0, 0, '', 'TUDEPT', 'Department', 100);
         fnCrtColGrid($this->GridObj, "txt", 0, 0, '', 'TUMAIL', 'Mail', 100);
@@ -76,7 +76,7 @@ class cTBLUSR extends cWeController {
         fnCrtObjRmk($this->FormObj, 1, "FF", "0", "Panel2", "TUUSRM", "User Remark", "User Remark", false, 200);
         fnCrtObjRmk($this->FormObj, 1, "FF", "0", "Panel2", "TUREMK", "Remark", "", false, 300);
         fnCrtObjGrd($this->FormObj, 1, "XX", "0", "Panel5", "TBLUAM", "Detail Access", false
-                            , "AEDL", "TBLUSR", "LoadTBLUAM");
+                            , "AEL", "TBLUSR", "LoadTBLUAM");
         fnCrtObjDefault($this->FormObj,"TU");    
         return response()->jSon($this->FormObj);   
     }
@@ -131,6 +131,7 @@ class cTBLUSR extends cWeController {
 
         $UserName = $request->AppUserName;
 
+
         switch ($request->Mode) {
             case "1":
                 $fTBLUSR['TUUSERIY'] = fnTBLNOR('TBLUSR', $UserName);
@@ -154,6 +155,9 @@ class cTBLUSR extends cWeController {
 
                 break;
             case "3":
+                DB::table('TBLUAM')
+                    ->where('TAUSERIY','=',$fTBLUSR['TUUSERIY'])      
+                    ->delete();
                 DB::table('TBLUSR')
                     ->where('TUUSERIY','=',$fTBLUSR['TUUSERIY'])      
                     ->delete();
@@ -161,17 +165,76 @@ class cTBLUSR extends cWeController {
         }
 
 
+        // Begin Insert Detail Hak Akses
+        switch ($request->Mode) {
+            case "1":
+            case "2":
+
+                $DataDetail = $fTBLUSR['TBLUAM']; 
+                foreach($DataDetail as $key => $value) {
+                    $fTBLUAM = $DataDetail[$key];
+                    $TBL = DB::table('TBLUAM')
+                        ->select('TANOMRIY')
+                        ->where([
+                                ['TAMENUIY','=',$fTBLUAM['TAMENUIY']],
+                                ['TAUSERIY','=',$fTBLUSR['TUUSERIY']]
+                                ])
+                        ->first();
+                    if (count($TBL)===0) { 
+                        $fTBLUAM['TAUSERIY'] = $fTBLUSR['TUUSERIY'];
+                        $FinalField = fnGetSintaxCRUD ($UserName, $fTBLUAM, 
+                            '1', "TA", 
+                            ['TAMENUIY','TAUSERIY','TAACES'], 
+                            $UnikNo );
+                        DB::table('TBLUAM')->insert($FinalField);
+                    } else {
+                        $fTBLUAM['TANOMRIY'] = $TBL->TANOMRIY;
+                        $FinalField = fnGetSintaxCRUD ($UserName, $fTBLUAM, 
+                            '2', "TA", 
+                            ['TAACES'], 
+                            $UnikNo );
+                        DB::table('TBLUAM')
+                            ->where('TANOMRIY','=',$fTBLUAM['TANOMRIY'])
+                            ->update($FinalField);
+                    } 
+                } 
+
+                break;
+        }
+        // END Insert Detail Hak Akses
+
     }
 
 
+    private $FormObjDetail = [];
+
+    public function FormObjectDetail(Request $request) {
+
+        // fnCrtObjTxt($this->FormObjDetail, 0, "FF", "3", "Panel11", "TANOMRIY", "Line IY", "", false);
+        fnCrtObjTxt($this->FormObjDetail, 0, "FF", "3", "Panel11", "TAMENUIY", "Menu IY", "", false);
+        fnCrtObjPop($this->FormObjDetail, 1, "FF", "2", "Panel12", "TAUSERIY", "TUUSER", "TUUSER", "User", "", false, "TBLUSR", true, 1);
+        // fnCrtObjTxt($this->FormObjDetail, 0, "FF", "3", "Panel13", "TMNOMR", "Nomor", "", false);
+        fnCrtObjTxt($this->FormObjDetail, 1, "FF", "3", "Panel13", "TMMENU", "Menu", "", false);
+        fnCrtObjTxt($this->FormObjDetail, 1, "FF", "3", "Panel13", "TMSCUT", "Short Cut", "", false);
+        // fnCrtObjTxt($this->FormObjDetail, 0, "FF", "3", "Panel13", "TMACES", "Access Original", "", false);
+        // fnCrtObjTxt($this->FormObjDetail, 1, "FF", "0", "Panel13", "TAACES", "Access", "", false);
+        fnCrtObjRad($this->FormObjDetail, 1, "FF", "0", "Panel13", "TAACES", "Access", "", "1", "toggle", "MODE", false);
+        // fnCrtObjRmk($this->FormObjDetail, 1, "FF", "0", "Panel13", "SLREMK", "Remark", "", false, 100);
+            // fnUpdObj($this->FormObj, "SHREMK", array("Helper"=>'Terserah anda mau isi apa?'));
+
+
+        return response()->jSon($this->FormObjDetail);   
+    }
+
     public function LoadTBLUAM(Request $request) {
 
-
-        fnCrtColGrid($this->GridObj, "hdn", 1, 1, '', 'TANOMRIY', 'User Access IY', 100);
+        // fnCrtColGrid($this->GridObj, "hdn", 1, 1, '', 'TANOMRIY', 'User Access IY', 100);
+        fnCrtColGrid($this->GridObj, "hdn", 1, 1, '', 'TAMENUIY', 'Menu IY', 100);
+        // fnCrtColGrid($this->GridObj, "hdn", 1, 1, '', 'TAUSERIY', 'User IY', 100);
         fnCrtColGrid($this->GridObj, "hdn", 1, 1, '', 'TMNOMR', 'Nomor', 100);
         fnCrtColGrid($this->GridObj, "txt", 1, 1, '', 'TMMENU', 'Menu', 100);
         fnCrtColGrid($this->GridObj, "txt", 1, 0, '', 'TMSCUT', 'Short Cut', 100);
-        fnCrtColGrid($this->GridObj, "txt", 1, 1, '', 'TMACES', 'TipeAccess', 100);
+        fnCrtColGrid($this->GridObj, "hdn", 0, 0, '', 'TMACES', 'TipeAccess', 100);
         fnCrtColGrid($this->GridObj, "txt", 1, 1, '', 'TAACES', 'Access', 100);
         fnCrtColGrid($this->GridObj, "act", 1, 0, '', 'ACTION', 'Action', 50);
         // fnCrtColGridDefault($this->GridObj, "TU");

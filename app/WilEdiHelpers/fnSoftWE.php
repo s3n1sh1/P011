@@ -557,6 +557,8 @@
                             ARRAY_FILTER_USE_KEY
                         );
 
+
+
         switch ($Mode) {
             case "1":
                 $FinalField = array_merge($FinalField, array(
@@ -576,16 +578,17 @@
                                             $Prefix."DLFG"=>"0",
                                             $Prefix."CHID"=>$UserName,
                                             $Prefix."CHDT"=>Date("Y-m-d H:i:s"),
-                                            $Prefix."CHNO"=>$AllField[$Prefix."CHNO"]+1,
+                                            // $Prefix."CHNO"=>$AllField[$Prefix."CHNO"]+1,
+                                            $Prefix."CHNO"=>DB::raw($Prefix.'CHNO+1'),
                                             $Prefix."CSID"=>$UserName,
                                             $Prefix."CSDT"=>Date("Y-m-d H:i:s")
-                                        ));           
+                                        ));            
                 break;
             case "3":
                 $FinalField = array_merge($FinalField, array(
                                             $Prefix."CHID"=>$UserName,
                                             $Prefix."CHDT"=>Date("Y-m-d H:i:s"),
-                                            $Prefix."CHNO"=>"0",
+                                            $Prefix."CHNO"=>DB::raw($Prefix.'CHNO+1'),
                                             $Prefix."CSID"=>$UserName,
                                             $Prefix."CSDT"=>Date("Y-m-d H:i:s")
                                         ));           
