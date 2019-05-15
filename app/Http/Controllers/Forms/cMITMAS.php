@@ -20,7 +20,7 @@ class cMITMAS extends cWeController {
         fnCrtColGrid($this->GridObj, "txt", 1, 1, '', 'MMITNO', 'Code', 100);
         fnCrtColGrid($this->GridObj, "txt", 1, 1, '', 'MMITNM', 'Name', 100);
         fnCrtColGrid($this->GridObj, "txt", 1, 1, '', 'MMITDS', 'Description', 100);
-        fnCrtColGrid($this->GridObj, "txt", 1, 1, '', 'MMREMK', 'Remark', 100);
+        fnCrtColGrid($this->GridObj, "txt", 1, 1, '', 'MMREMK', 'Remark', 100, '', 100);
         fnCrtColGridDefault($this->GridObj, "MM");
 
         $this->GridFilter = [];
