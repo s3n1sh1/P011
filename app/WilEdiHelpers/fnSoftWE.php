@@ -744,49 +744,6 @@
         return $Hasil;
     }
 
-
-    function fnSetExecuteQuery ($UserName, $cm) {
-        $HasilExec = null;
-        try{
-            DB::enableQueryLog();            
-            $HasilExec = DB::transaction(function () use($UserName, $cm) {
-                return App::call('\App\Http\Controllers\Forms\\'.$cm);
-            });
-            $QueryLog = DB::getQueryLog();
-            fnSaveSqlSintax($QueryLog, $UserName);
-            $BerHasil = true;
-        } catch (\Exception $e){ 
-
-            $message = $e->errorInfo[2];
-            // $eCode = $e;
-            $eCode = fnSaveSqlError($e, $UserName);
-            // $message = $a->sql;
-            $BerHasil = false;
-        }        
-        /*
-            Jika StpXXXXX tidak Response apa apa
-            maka akan masuk is_null($hasilExec)
-
-            Jika StpXXXXX ada Responses apa apa
-            maka akan pake response StpXXXXX
-        */
-        if (is_null($HasilExec)) {
-            if ($BerHasil) {
-                $Hasil = array("success"=> true, "message"=> "*** Success ***", "eCode"=>"");
-                // $Hasil = array("success"=> true, "message"=> "*** Success ***");
-            } else {
-                $Hasil = array("success"=> false, "message"=> $message, "eCode"=>$eCode);
-                // $Hasil = array("success"=> false, "message"=> $message);
-            }
-        } else {
-            $Hasil = json_encode($HasilExec);
-            $Hasil = json_decode($Hasil, true);
-            $Hasil = $Hasil['original'];
-        }
-
-        return $Hasil;
-    }
-
     function fnGetSqlSintax($QueryLog) {
         $STMT = "";
         foreach ($QueryLog as $k => $Q) {
