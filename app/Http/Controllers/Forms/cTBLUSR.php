@@ -180,7 +180,7 @@ class cTBLUSR extends cWeController {
                                 ['TAUSERIY','=',$fTBLUSR['TUUSERIY']]
                                 ])
                         ->first();
-                    if (count($TBL)===0) { 
+                    if (is_null($TBL)) { 
                         $fTBLUAM['TAUSERIY'] = $fTBLUSR['TUUSERIY'];
                         $FinalField = fnGetSintaxCRUD ($UserName, $fTBLUAM, 
                             '1', "TA", 
