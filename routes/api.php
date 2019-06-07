@@ -20,8 +20,8 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 Route::get('login', 'Forms\cAUTH@Login');
 
 Route::middleware(['weToken'])->group(function () {
-	Route::get('getData', 'cWeROUTER@Panggil');
-	Route::post('postData', 'cWeROUTER@Kirim');
+	Route::get('getData', 'cWeRouter@Panggil');
+	Route::post('postData', 'cWeRouter@Kirim');
 });
 
 /*
