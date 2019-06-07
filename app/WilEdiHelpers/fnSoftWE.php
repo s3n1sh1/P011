@@ -608,7 +608,12 @@
 
     function fnCheckBFCS ($Obj) {
 
-        if ($Obj["Mode"]!="1") { // Begin Check Change System Date
+        // if ($Obj["Mode"]!="1") { // Begin Check Change System Date
+        /*  By Wilianto 2019 06 07
+            Hanya Edit saja yang di Check BFCS
+            Karena ke bentur dengan GRID value kirim
+        */
+        if ($Obj["Mode"]=="2") { // Begin Check Change System Date
             if (is_array($Obj["Key"])) {
                 $Prefix = SubStr($Obj["Key"][0],0,2);
                 $Key = $Obj["Key"][0];
