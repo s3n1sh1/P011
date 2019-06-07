@@ -483,7 +483,7 @@
         $ListData = [];
         switch (strtoupper($Table)) {
             case "TBLSYS":
-                $Model = "Tblsys";        
+                $Model = "TBLSYS";        
 
                 $Condition = [];
                 array_push($Condition, ['TDDSCD','=',$TableCode]);
