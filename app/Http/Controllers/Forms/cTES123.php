@@ -10,6 +10,18 @@ use DB;
 
 class cTES123 extends cWeController {
 
+    public function Coba() {
+// dd('aaa');
+            $arrCSDT = fnGetRec("MITMAS", 
+                                "MMITNOIY,MMITNO,MMCSDT,MMCSID", 
+                                "MMITNOIY", "300", "") ;
+
+            echo ' ('.empty($arrCSDT).") ";
+
+            dd($arrCSDT);
+
+    }
+
     public function Awal(Request $request) {
         $C = [];
         $C = array("TDRGID" => 'Default',

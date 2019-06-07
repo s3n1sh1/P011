@@ -474,7 +474,10 @@
                               }
                           })
                         ->get();
-
+        
+        if ($Rec->isEmpty()) {
+            return [];
+        }
         return $Rec[0];
     
     }
@@ -634,6 +637,13 @@
                                 $Prefix.'CSDT'.",".$Prefix.'CSID', 
                                 $Key, $Obj["Data"][$Key], $arrCondition) ;
             // var_dump($arrCSDT);
+            
+            // Begin By Wili n Edison 2019 06 07
+            if (empty($arrCSDT)) {
+                return array("success"=>false, "message"=>"Record not found, Please refresh your data!!!");            
+            }
+            // End By Wili n Edison 2019 06 07
+
             $CSDT = $Prefix.'CSDT';
             $CSID = $Prefix.'CSID';
 

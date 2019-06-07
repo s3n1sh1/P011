@@ -31,6 +31,7 @@ Route Yang Di Bawah Untuk Testing...
 */
 Route::get('TestControllerAwal', 'Forms\cTES123@Awal');
 Route::get('TestControllerAkhir', 'Forms\cTBLDSC@LoadGrid');
+Route::get('TestControllerCoba', 'Forms\cTES123@Coba');
 // Route::get('TestControllerAkhir', 'Forms\cTBLDSC@FormObject');
 // Route::get('TestControllerAkhir', 'Forms\cTBLDSC@FillForm');
 Route::get('testing', function () {
