@@ -31,14 +31,14 @@ use App\Models\weModel;
  * @property string $TECSID
  * @property string $TECSNO
  */
-class Tblelf extends weModel
+class TBLELF extends weModel
 {
     /**
      * The table associated with the model.
      * 
      * @var string
      */
-    protected $table = 'tblelf';
+    protected $table = 'TBLELF';
 
     /**
      * The primary key for the model.

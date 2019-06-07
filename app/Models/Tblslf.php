@@ -27,14 +27,14 @@ use App\Models\weModel;
  * @property string $TQCSID
  * @property string $TQCSNO
  */
-class Tblslf extends weModel
+class TBLSLF extends weModel
 {
     /**
      * The table associated with the model.
      * 
      * @var string
      */
-    protected $table = 'tblslf';
+    protected $table = 'TBLSLF';
 
     /**
      * The primary key for the model.
